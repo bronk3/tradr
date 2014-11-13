@@ -1,0 +1,24 @@
+﻿@using System.Drawing
+@using System.Web.Http
+@using Tradr.Models
+@model List<Item>
+@{
+    ViewBag.Title = "My Items";
+}
+
+@foreach (var item in Model)
+{
+    <div class="col-sm-4 text-center">
+        <div class="myitem-container">
+            <a href="@Url.Action("ItemDetails", "Item", new{id = item.ItemId})">
+                <div class="img" style="background-image: url('@Url.Content("~/Content/images/items/" + @item.Images.First().ItemImage)')"></div>
+                <div class="title-tag">@item.Title</div> </a>
+                <div class="value-tag">@item.Value</div>
+                <div class="views-tag">@item.Views</div>
+                <div class="offers-tag">@item.DesiredItem.Count</div>
+                <div class="date-tag">@item.DateTimeAdded.ToString("dd MMM yyyy, hh:mm tt")</div>
+                <a href="@Url.Action("EditItem", "item", new { id = item.ItemId})"><button class="btn btn-info">Edit</button></a>
+                <a href="@Url.Action("removeItem", "item", new { id = item.ItemId })"><button class="btn btn-danger">Remove</button></a>
+        </div>
+    </div>
+}

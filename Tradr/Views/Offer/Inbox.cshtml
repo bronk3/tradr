@@ -1,0 +1,57 @@
+﻿@using System.Collections
+@using System.Web.UI.WebControls
+@using Microsoft.Ajax.Utilities
+@using Tradr.Models
+@model List<Offer>
+@{
+    ViewBag.Title = "Inbox";
+    var GroupedItemList = Model.GroupBy(x => x.DesiredItems.FirstOrDefault().ItemId, x => x, (key, g) => new { ItemId = key, offers = g.ToList() });
+    
+    var first = true;
+    }
+<div class="offers" style="width: 90%; margin: 0 auto;">
+
+    @if(Model.Count != 0){
+        foreach (var ListOffersByItemId in GroupedItemList)
+        {
+            <div class="desired-images-container">
+                <div class="title" style="text-align: left;">Desired Items:</div>
+                <div class="desired-images" style="background-image:url('@Url.Content("~/Content/images/items/" + ListOffersByItemId.offers[0].DesiredItems.First().Images.First().ItemImage)')"></div>
+            </div>
+            first = true;
+            foreach (Offer offer in ListOffersByItemId.offers.OrderByDescending(x => x.DateTimeInitial))
+            {
+                if (offer.DesiredItems.Count != 0 && offer.ProposedItems.Count != 0 && offer.Messages.Count != 0)
+                {
+                    if (first)
+                    {
+                        first = false;
+                    }
+                    else
+                    {
+                        <br />
+                        <div class="desired-image-filler"></div>
+                    }
+                    <div class="offer-container @offer.See">
+                        <div class="offer-images-container">
+                            <div class="title" style="text-align: left;">Offered Items:</div>
+                            @foreach (var item in offer.ProposedItems)
+                            {
+                                <div class="offer-images" style="background-image: url('@Url.Content("~/Content/images/items/" + item.Images.First().ItemImage)')"></div>
+                            }
+                        </div>
+                    
+                        <div class="buttons">
+                            <div class="offer-date">Date: @offer.DateTimeInitial</div>
+                            <a href="@Url.Action("AcceptOffer", "Offer", new {id = offer.OfferId})"><button class="btn btn-success">Accept Offer</button></a>
+                            <a href="@Url.Action("NegotiateOffer", "Offer", new {id = offer.OfferId})"><button class="btn btn-info">View Offer</button></a>
+                            <a href="@Url.Action("RejectOffer", "Offer", new {id = offer.OfferId})"><button class="btn btn-danger">Reject Offer</button></a>    
+                        </div>
+                    </div>
+                    <br />
+                }
+            }
+        }
+    }
+</div>
+    

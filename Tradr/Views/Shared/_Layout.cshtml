@@ -1,0 +1,112 @@
+﻿@using System.EnterpriseServices
+@using Tradr.Controllers
+@using Tradr.Models
+@{
+  ViewBag.UserName= this.Session["UserName"];
+ }
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Tradr | @ViewBag.Title</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript" src="@Url.Content("~/Content/js/jquery-2.1.0.min.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery-ui-1.8.20.js")"></script>
+    <script src="@Url.Content("~/Content/js/jquery.tagsinput.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Content/js/bootstrap.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Content/js/dropzone.js")"></script>
+    
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/css/jquery.tagsinput.css")" />
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/css/bootstrap.css")" />
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/css/basic.css")"/>
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/css/dropzone.css")"/>
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/css/main.css")" />
+</head>
+    <body>
+        <nav class="nav navbar-default" role="navigation">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="tradr-main-nav">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="@Url.Action("Index", "Home")">TRADR</a>
+                </div>
+                
+                <div class="collapse navbar-collapse" id="tradr-main-nav">
+                    <ul class="nav navbar-nav">
+                        <form class="navbar-form navbar-left" role="search">
+                            <div class="form-group">
+                                <input type="text" id="main-search" class="form-control search-bar" placeholder="Search">
+                            </div>
+                            <button type="submit" class="btn btn-default">Search</button>
+                        </form>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        
+                        <li><a>Welcome @ViewBag.UserName!</a></li>
+
+                        <li><a href="@Url.Action("UserSettings", "User")">User Settings</a></li>
+                        
+                        <li><a href="@Url.Action("Login", "Login")">Log Out</a></li>
+                    </ul>
+                </div>
+                <ul class="nav nav-pills nav-justified">
+                    <li><a href="@Url.Action("NewItem", "Item")" style="text-transform: uppercase;">Post New Item</a></li>
+                    <li><a href="@Url.Action("MyItems", "Item")">My Items</a></li>
+                    <li><a href="@Url.Action("Outbox", "Offer")">Outbox</a></li>
+                    <li><a href="@Url.Action("Inbox", "Offer")">Inbox</a></li>
+                    <li><a href="@Url.Action("History", "Offer")">History</a></li>
+                </ul>
+            </div>
+        </nav>
+           <div id="main-content">
+            @RenderBody()
+            </div>
+    </body>
+</html>
+
+
+<script type="text/javascript">
+
+    $(function () {
+
+        //autocomplete functionality can be included https://github.com/xoxco/jQuery-Tags-Input
+        $("#main-search").tagsInput({
+            'width': '600px',
+            'height' : '35px',
+            'defaultText': 'Search',
+            'placeholderColor' : '#aaaaaa'
+    });
+
+        $(".container-inner").each(function () {
+            var container = $(this);
+            var totalwidth = container.children(".item-container").length * (parseInt($(".item-container").css("width")) + parseInt($(".item-container").css("margin-right")) + 10);
+            container.css("width", totalwidth);
+        });
+    });
+
+    $("a[data-slide]").click(function () {
+        var clicked = $(this);
+        var outerWidth = parseInt(clicked.parent().css("width"));
+        var innerContainer = clicked.parent().find(".container-inner");
+        var margin = parseInt(innerContainer.css("margin-left"));
+        var innerWidth = parseInt(innerContainer.css("width"));
+        var direction = clicked.attr('data-slide');
+        var itemWidth = parseInt($(".item-container").css("width")) + parseInt($(".item-container").css("margin-right"));
+        var animateTime = 400;
+        if (direction == "next" && Math.abs(margin - itemWidth) > innerWidth - outerWidth) {
+            innerContainer.animate({ "margin-left": "-" + (innerWidth - outerWidth) + "px" }, animateTime);
+        } else if (direction == "prev" && margin + itemWidth > 0) {
+            innerContainer.animate({ "margin-left": "0px" }, animateTime);
+        } else if (direction == "next") {
+            innerContainer.animate({ "margin-left": (margin - itemWidth) + "px" }, animateTime);
+        } else if (direction == "prev") {
+            innerContainer.animate({ "margin-left": (margin + itemWidth) + "px" }, animateTime);
+        }
+    });
+    
+</script>

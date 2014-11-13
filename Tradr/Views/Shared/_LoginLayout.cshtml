@@ -1,0 +1,76 @@
+﻿@using Tradr.Controllers
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Tradr | @ViewBag.Title</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript" src="@Url.Content("~/Content/js/jquery-2.1.0.min.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery-ui-1.8.20.js")"></script>
+    <script src="@Url.Content("~/Content/js/jquery.tagsinput.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Content/js/bootstrap.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Content/js/dropzone.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Content/js/triagonal-roticerod.js")"></script>
+    
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/css/jquery.tagsinput.css")" />
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/css/bootstrap.css")" />
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/css/basic.css")"/>
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/css/dropzone.css")"/>
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/css/main.css")" />
+</head>
+    <body>
+        <div id="triagonal">
+            <div id="login-main-content">
+            @RenderBody()
+            </div>
+        </div>
+    </body>
+</html>
+<script type="text/javascript">
+    var curTime = new Date().getHours();
+
+                // gradients for every hour of the day
+                // taken from http://codepen.io/Bork/pen/wJhEm
+                var shades = [
+                    Triagonal.createShade('#012459','#001322'), // 0
+                    Triagonal.createShade('#003972','#001322'),
+                    Triagonal.createShade('#003972','#001322'),
+                    Triagonal.createShade('#004372','#00182b'),
+                    Triagonal.createShade('#004372','#011d34'),
+                    Triagonal.createShade('#016792','#00182b'),
+
+                    Triagonal.createShade('#07729f','#042c47'), // 6
+                    Triagonal.createShade('#12a1c0','#07506e'),
+                    Triagonal.createShade('#74d4cc','#1386a6'),
+                    Triagonal.createShade('#efeebc','#61d0cf'),
+                    Triagonal.createShade('#fee154','#a3dec6'),
+                    Triagonal.createShade('#fdc352','#e8ed92'),
+
+                    Triagonal.createShade('#ffac6f','#ffe467'), // 12
+                    Triagonal.createShade('#fda65a','#ffe467'),
+                    Triagonal.createShade('#fd9e58','#ffe467'),
+                    Triagonal.createShade('#f18448','#ffd364'),
+                    Triagonal.createShade('#f06b7e','#f9a856'),
+                    Triagonal.createShade('#ca5a92','#f4896b'),
+
+                    Triagonal.createShade('#5b2c83','#d1628b'), // 18
+                    Triagonal.createShade('#371a79','#713684'),
+                    Triagonal.createShade('#28166b','#45217c'),
+                    Triagonal.createShade('#192861','#372074'),
+                    Triagonal.createShade('#040b3c','#233072'),
+                    Triagonal.createShade('#040b3c','#012459'),
+                ];
+
+    var tri = Triagonal.generate({
+        width: 'auto',
+        height: 'auto',
+        scale: 7,
+        magnitude: 0,
+        shadeVariance: 0.5,
+        shade: shades[curTime]
+    }).toDataURL();
+    $("#triagonal").css("background-image", "url('" + tri + "')");
+
+</script>
+

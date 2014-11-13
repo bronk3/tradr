@@ -1,0 +1,86 @@
+﻿@using Tradr.Models
+@model ViewItem
+@{
+    ViewBag.Title = "New Item";
+}
+
+@using (Html.BeginForm("NewItem", "Item", FormMethod.Post, new { @id = "new-item"}))
+{
+    <span id="ErrorMessage">All fields must be filled in</span>
+    <div class="col-sm-6">   
+        <div class="form-group dropzone" id="dropzoneHere">
+        </div>
+        <input type="hidden" name="Images" id="Images" value="@Model.Images"/>
+ </div>
+
+    <div class="col-sm-6">
+        <div class="form-group">
+            <label for="Title">Title</label>
+            <input type="text" id="Title" name="Title" class="form-control" value="@Model.Title"/>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="form-group">
+            <label for="Title">Value</label>
+            <input type="text" id="Value" name="Value" class="form-control" value="@Model.Value"/>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="form-group">
+            <label for="Description">Description</label>
+            <textarea id="Description" name="Description" class="form-control" rows="5" value="@Model.Description"></textarea>
+        </div>
+    </div>
+            <div class="col-sm-6">
+        <div class="form-group">
+            <label for="Tags">Descriptive Tags</label>
+            <input type="text" id="Tags" name="Tags" class="form-control" value="@Model.Tags"/>
+        </div>
+    </div>
+        <div class="col-sm-6 col-sm-offset-6">
+        <div class="form-group">
+            <label for="Wants">Trade Wish List</label>
+            <input type="text" id="Wants" name="Wants" class="form-control" value="@Model.Wants"/>
+        </div>
+    </div>
+
+    
+   <div class="col-sm-12"><input type="submit" id="Submit" class="pull-right btn" value="Submit"/></div> 
+}
+
+<script type="text/javascript">
+
+    Dropzone.options.dropzoneHere = {
+        url: '@Url.Action("ImageUpload", "Item")',
+        maxFiles: 6,
+        autoProcessQueue: 'false',
+        init: function () {
+            this.on("success", function (file, name) {
+                if ($("#Images").val() == "") {
+                    $("#Images").val(name);
+                } else { $("#Images").val($("#Images").val() + "," + name); }
+                console.log($("#Images").val());
+            }
+            );
+        }
+    };
+
+    $("#Wants, #Tags").tagsInput({
+        'width': '100%',
+        'height': "35px",
+        'defaultText': "",
+        'placeholderColor': '#aaaaaa'
+    });
+
+    $('#Submit').click(function () {
+        $("#new-item input, #new-item textarea").each(function () {
+            var input = $(this);
+            if (input.val() == "") {
+                // event.preventDefault();
+                // $("#ErrorMessage").show();
+            }
+        });
+    });
+
+   
+</script>

@@ -1,0 +1,44 @@
+﻿@using Tradr.Models
+@model User
+@{
+    ViewBag.Title = "New User";
+}
+
+<div class="col-sm-2 col-sm-offset-8">
+    <a href="@Url.Action("Login", "Login")"><input type="button" class="btn" value="Log in"/></a>
+</div>
+@using (Html.BeginForm("NewUser", "Login", FormMethod.Post, new { @id = "new-user" }))
+{
+    <div class="col-sm-3 col-sm-offset-4">
+        <div class="form-group">
+            <label for="FirstName">First Name: </label>
+            <input type="text" id="FirstName" name="FirstName" class="form-control" value="@Model.FirstName"/>
+        </div>
+    </div>
+    <div class="col-sm-3 col-sm-offset-4">
+        <div class="form-group">
+            <label for="LastName">Last Name: </label>
+            <input type="text" id="LastName" name="LastName" class="form-control" value="@Model.LastName"/>
+        </div>
+    </div>
+        <div class="col-sm-3 col-sm-offset-4">
+        <div class="form-group">
+            <label for="City">City: </label>
+            <input type="text" id="City" name="City" class="form-control" value="@Model.City"/>
+        </div>
+    </div>
+        <div class="col-sm-3 col-sm-offset-4">
+            <div class="form-group">
+                <label for="EmailAddress">Email: </label>
+                <input type="text" id="EmailAddress" name="EmailAddress" class="form-control" value="@Model.EmailAddress"/>
+            </div>
+        </div>
+    <div class="col-sm-3 col-sm-offset-4">
+        <div class="form-group">
+            <label for="Password">Password: </label>
+            <input type="password" id="Password" name="Password" class="form-control"  value="@Model.Password"/>
+        </div>
+    </div>
+        <div class="col-sm-3 col-sm-offset-4"><input type="submit" id="Submit" class="pull-right btn" value="Submit"/></div> 
+
+    }

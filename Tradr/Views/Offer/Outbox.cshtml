@@ -1,0 +1,38 @@
+﻿@using System.Web.UI.WebControls
+@using Microsoft.Ajax.Utilities
+@using Tradr.Models
+@model List<Offer>
+@{
+    ViewBag.Title = "Outbox";
+}
+<div class="offers">
+        @foreach (var offer in Model.OrderByDescending(x => x.DateTimeInitial)){
+        if(offer.DesiredItems.Count != 0 && offer.ProposedItems.Count != 0 && offer.Messages.Count != 0)
+        {
+            var status = offer.See == OfferSee.Seen ? "Seen by User" : "Not Seen by User";
+            <div class="offer-wrapper">
+                <div class="desired-images-container">
+                    <div class="title" style="text-align: left;">Desired Items:</div>
+                    <div class="desired-images" style="background-image: url('@Url.Content("~/Content/images/items/" + offer.DesiredItems.First().Images.First().ItemImage)')"></div>
+                </div>
+                <div class="offer-container">
+                    <div class="offer-images-container">
+                        <div class="title" style="text-align: left;">Offered Items:</div>
+                        @foreach (var item in offer.ProposedItems)
+                        {
+                            <div class="offer-images" style="background-image: url('@Url.Content("~/Content/images/items/" + item.Images.First().ItemImage)')"></div>
+
+                        }
+                    </div>
+                    
+                    <div class="buttons">
+                        <div class="offer-date">Date: @offer.DateTimeInitial</div>
+                        <div class="status">@status</div>
+                        <a href="@Url.Action("ViewOffer", "Offer", new { id = offer.OfferId})"><button class="btn btn-info">View Offer</button></a>
+                        <a href="@Url.Action("RemoveOffer", "Offer", new { id = offer.OfferId })"><button class="btn btn-danger">Remove Offer</button></a>    
+                    </div>
+                </div>
+            </div>
+            }
+        }
+        </div>

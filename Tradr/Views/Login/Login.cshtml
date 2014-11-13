@@ -1,0 +1,28 @@
+﻿@using Tradr.Models
+@model ViewLogin
+@{
+    ViewBag.Title = "Login/Sign-up";
+}
+<div class="col-sm-2 col-sm-offset-8">
+    
+    <a href="@Url.Action("NewUser", "Login")"><input type="button" class="btn" value="Create Account"/></a>
+</div>
+@using (Html.BeginForm("Login", "Login", FormMethod.Post, new { @id = "login" }))
+{
+  
+        <div class="col-sm-3 col-sm-offset-4">
+            <div class="form-group">
+                <label for="EmailAddress">Email: </label>
+                <input type="text" id="EmailAddress" name="EmailAddress" class="form-control" value="@Model.EmailAddress"/>
+            </div>
+        </div>
+        <div class="col-sm-3 col-sm-offset-4">
+            <div class="form-group">
+                <label for="Password">Password: </label>
+                <input type="password" id="Password" name="Password" class="form-control"  value="@Model.Password"/>
+            </div>
+        </div>
+        <div class="col-sm-3 col-sm-offset-4"><input type="submit" id="Submit" class="pull-right btn" value="Login"/></div> 
+        
+    }
+    

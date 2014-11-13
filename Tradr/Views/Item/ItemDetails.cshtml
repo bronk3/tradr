@@ -1,0 +1,45 @@
+﻿@using System.Web.Http
+@using Tradr.Models
+@model Item
+@{
+    ViewBag.Title = "ItemDetails";
+}
+
+<div class="">   
+
+    <div id="image-row">
+        <h1>@Model.Title</h1>
+        @foreach (var image in Model.Images)
+        {
+            <div class="multiple-img" style="background-image: url('@Url.Content("~/Content/images/items/" + @image.ItemImage)')"></div>
+        }
+    </div>
+
+
+    <div class="item-details">
+        <div class="title">Description</div>
+        @Model.Description
+    </div>
+    <div class="item-details">
+        <div class="title">Value</div>
+        @Model.Value
+    </div>
+    <div class="item-details">
+        <div class="title">Wants</div>
+        @string.Join(", ", Model.Wants.Select(x => x.TagName))
+    </div>
+    <div class="item-details">
+        <div class="title">Tags</div>
+        @string.Join(", ", Model.Tags.Select(x => x.TagName))
+    </div>
+    <div class="action-buttons">
+    <a href="@Url.Action("MakeAnOffer", "Offer", new { id = Model.ItemId})"><button class="btn btn-primary">Make An Offer</button></a>
+        <a href="@Url.Action("Index", "Home")"><button class="btn btn-default">Back</button></a>
+        </div>
+</div>
+
+<script>
+    $(function () {
+
+});
+</script>

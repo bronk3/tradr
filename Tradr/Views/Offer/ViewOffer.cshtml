@@ -1,0 +1,71 @@
+﻿@using System.Security.Cryptography
+@using Tradr.Models
+@model Offer
+@{
+    ViewBag.Title = "ViewOffer";
+    var status = Model.See == OfferSee.Seen ? "Seen by User" : "Not Seen by User";
+    Item desiredItem = Model.DesiredItems.First();
+}
+<div id="view-offer">
+       <div class="title">Desired Items:</div>
+    <div id="desired-item-container">
+        @foreach(var item in Model.DesiredItems){
+
+            <div class="desired-item">
+                <div class="desired-image" style="background-image: url('@Url.Content("~/Content/images/items/" + item.Images.First().ItemImage)')"></div>
+                <div class="desired-title">@item.Title</div>
+                <div class="desired-value">Value: @item.Value</div>
+                <div class="desired-tags">Wants: @string.Join(", ", item.Wants.Select(x => x.TagName))</div>
+                <div class="desired-views">Views: @item.Views</div>
+                <div class="desired-offers">Offers: @item.User.RecievedOffers.Where(x => x.DesiredItems.Any(y => y.ItemId == item.ItemId) && x.Status != OfferStatus.Rejected).ToList().Count</div>
+                <div class=""></div>
+            </div>
+        }
+    </div>
+       <div class="title">Proposed Items:</div>
+    <div id="proposed-container">
+        @foreach (var item in Model.ProposedItems)
+        {
+            <div class="proposed-items">
+                <div class="proposed-image" style="background-image: url('@Url.Content("~/Content/images/items/" + item.Images.First().ItemImage)')"></div>
+                <div class="info">
+                    <div class="proposed-title"><span>Title: </span>@item.Title</div>
+                    <div class="proposed-description"><span>Description: </span>@item.Description</div>
+                    <div class="proposed-value"><span>Value: </span>@item.Value</div>
+                </div>
+            </div>
+        }
+    </div>
+    
+    <div id="message">
+        @foreach (var message in Model.Messages)
+        {
+            <div>@message.MessageText</div>
+        }
+    </div>
+
+    <div class="buttons">
+        <div class="offer-date">Date: @Model.DateTimeInitial</div>
+        <div class="status">@Model.Status</div>
+        <div class="status">@status</div>
+        <a href="@Url.Action("RemoveOffer", "Offer", new { id = Model.OfferId })"><button class="btn btn-danger">Remove Offer</button></a>    
+        <a href="@Url.Action("Outbox", "Offer")"><button class="btn btn-info">Back</button></a>
+    </div>
+</div>
+<script>
+$(function() {
+    $(".proposed-image").click(function() {
+        var image = $(this);
+        if (image.next().css("display") == "none") {
+            image.next().slideDown("slow").css("display", "inline-block");
+            image.parent().css("display", "block");
+            image.parent().parent().prepend(image.parent());
+        } else {
+            image.next().css("display", "none");
+            image.parent().css("display", "inline");
+            image.parent().parent().append(image.parent());
+        }
+    });
+
+});
+</script>
