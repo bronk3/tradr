@@ -2,56 +2,44 @@
 @using System.Web.UI.WebControls
 @using Microsoft.Ajax.Utilities
 @using Tradr.Models
-@model List<Offer>
+@model List<IdateObject>
 @{
     ViewBag.Title = "Inbox";
-    var GroupedItemList = Model.GroupBy(x => x.DesiredItems.FirstOrDefault().ItemId, x => x, (key, g) => new { ItemId = key, offers = g.ToList() });
-    
+    ViewBag.Nav = "#nav4";
+   // var GroupedItemList = Model.Offers.GroupBy(x => x.DesiredItems.FirstOrDefault().ItemId, x => x, (key, g) => new { ItemId = key, offers = g.ToList() });
+
     var first = true;
     }
 <div class="offers" style="width: 90%; margin: 0 auto;">
-
-    @if(Model.Count != 0){
-        foreach (var ListOffersByItemId in GroupedItemList)
+    <div class="text-center"><h1>Inbox</h1></div>
+    @foreach (var item in Model.OrderByDescending(x => x.DateTime))
+    {
+        if (item is Message)
         {
-            <div class="desired-images-container">
-                <div class="title" style="text-align: left;">Desired Items:</div>
-                <div class="desired-images" style="background-image:url('@Url.Content("~/Content/images/items/" + ListOffersByItemId.offers[0].DesiredItems.First().Images.First().ItemImage)')"></div>
-            </div>
-            first = true;
-            foreach (Offer offer in ListOffersByItemId.offers.OrderByDescending(x => x.DateTimeInitial))
-            {
-                if (offer.DesiredItems.Count != 0 && offer.ProposedItems.Count != 0 && offer.Messages.Count != 0)
-                {
-                    if (first)
-                    {
-                        first = false;
-                    }
-                    else
-                    {
-                        <br />
-                        <div class="desired-image-filler"></div>
-                    }
-                    <div class="offer-container @offer.See">
-                        <div class="offer-images-container">
-                            <div class="title" style="text-align: left;">Offered Items:</div>
-                            @foreach (var item in offer.ProposedItems)
-                            {
-                                <div class="offer-images" style="background-image: url('@Url.Content("~/Content/images/items/" + item.Images.First().ItemImage)')"></div>
-                            }
-                        </div>
-                    
-                        <div class="buttons">
-                            <div class="offer-date">Date: @offer.DateTimeInitial</div>
-                            <a href="@Url.Action("AcceptOffer", "Offer", new {id = offer.OfferId})"><button class="btn btn-success">Accept Offer</button></a>
-                            <a href="@Url.Action("NegotiateOffer", "Offer", new {id = offer.OfferId})"><button class="btn btn-info">View Offer</button></a>
-                            <a href="@Url.Action("RejectOffer", "Offer", new {id = offer.OfferId})"><button class="btn btn-danger">Reject Offer</button></a>    
-                        </div>
-                    </div>
-                    <br />
-                }
-            }
+            ViewBag.view = OfferListView.Inbox;
+            Html.RenderPartial("SentMessage", (Message)item);
+        }
+        else if (item is Offer)
+        {
+            ViewBag.view = OfferListView.Inbox;
+            Html.RenderPartial("DesiredList", (Offer)item);
+            ViewBag.view = OfferListView.Inbox;
+            Html.RenderPartial("OfferList", (Offer)item);
         }
     }
 </div>
-    
+<script>
+    $(function () {
+
+        $(window).load(function () {
+            $(".Negotiation").each(function () {
+                var negotiation = $(this);
+                var nextOffer = negotiation.attr("data-next");
+                negotiation.prepend("<div class='cover-negotiated'><a href='" + nextOffer + "'><button class='btn btn-success btn-lg'>View Newest Offer</button></a></div>");
+                //$("<div id='cover-negotiated'><a href='" + nextOffer + "'><button class='btn btn-info'>View Newest Offer</button></a></div>").insertAfter(negotiation);
+            });
+        });
+
+    });
+</script>
+

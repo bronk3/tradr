@@ -1,0 +1,26 @@
+﻿@using Tradr.Models
+@model User
+@{
+    ViewBag.Title = Model.FirstName;
+}
+
+<div id="profile">
+    <h2>@Model.FirstName's Items</h2>
+
+    @foreach (var item in Model.Items)
+    {
+        {
+            Html.RenderPartial("SearchBox", item);
+        }
+    }
+    <ul>
+        <li>Name: @Model.FirstName @Model.LastName</li>
+        <li>Address: @Model.Street @Model.City @Model.AreaCode</li>
+        <li>Phone: @Model.Phone</li>
+        <li>Email: @Model.EmailAddress</li>
+        <li>Wants: @String.Join(", ", Model.Wants.Select(x => x.TagName))</li>
+    </ul>
+    <div class="buttons">
+        <a href="@Url.Action("Message", "User", new { id = Model.UserId })"><button class="btn btn-info">Message @Model.FirstName</button></a>
+    </div>
+</div>

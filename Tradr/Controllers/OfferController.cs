@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
 using System.Web.UI.WebControls.Expressions;
+using Microsoft.Ajax.Utilities;
 using Tradr.DAL;
 using Tradr.Models;
 using WebGrease.Css.Extensions;
@@ -37,11 +38,10 @@ namespace Tradr.Controllers
         [HttpPost]
         public ActionResult MakeAnOffer(Offer model)
         {
-            var desiredId = Convert.ToInt32(Request.Form["desiredId"]);
             var senderId = Convert.ToInt32(Request.Form["senderId"]);
             var recieverId = Convert.ToInt32(Request.Form["recieverId"]);
 
-            if (desiredId != 0 && senderId != 0 && recieverId != 0)
+            if (senderId != 0 && recieverId != 0)
             {
                 var sender = db.Users.FirstOrDefault(x => x.UserId == senderId);
                 var receiver = db.Users.FirstOrDefault(x => x.UserId == recieverId);
@@ -52,12 +52,12 @@ namespace Tradr.Controllers
                 model.Sender = sender;
 
                 AddDesiredItems(Request.Form["desiredItems"], model);
-                AddProposedItems(Request.Form["items"], model);
+                AddProposedItems(Request.Form["Offereditems"], model);
                 UpdateItemStatus(model.ProposedItems.ToList());
                 UpdateItemStatus(model.DesiredItems.ToList());
                 model.Messages.Add(CreateMessage(Request.Form["message"], model));
                 model.Status = OfferStatus.Initial;
-                model.DateTimeInitial = DateTime.UtcNow;
+                model.DateTime = DateTime.UtcNow;
                 model.See = OfferSee.NotSeen;
 
                 db.Offers.Add(model);
@@ -69,100 +69,217 @@ namespace Tradr.Controllers
                 return View(model);
             }
         }
-        public ActionResult ViewOffer(int id)
+        public ActionResult ViewOffer(int id, string previous)
         {
+            ViewBag.curUser = Convert.ToInt32(this.Session["UserId"]);
             var offer = db.Offers.SingleOrDefault(x => x.OfferId == id);
+            if (offer == null)
+            {
+               return RedirectToAction("Warning", "Offer");
+            }
+            if (!string.IsNullOrEmpty(previous))
+            {
+                ViewBag.Previous = "true";
+            }
             return View(offer);
         }
-        public ActionResult NegotiateOffer(int id)
+        public ActionResult NegotiateOffer(int id, OfferStatus? negotiate)
         {
             var offer = db.Offers.SingleOrDefault(x => x.OfferId == id);
+            if (offer == null)
+            {
+               return RedirectToAction("Warning", "Offer");
+            }
             offer.See = OfferSee.Seen;
             db.SaveChanges();
+            if (negotiate != null && negotiate == OfferStatus.Negotiation)
+            {
+                ViewBag.Negotiation = OfferStatus.Negotiation;
+            }
             return View(offer);
         }
-        ///THIS IS BROKEN BECAUSE THE OFFER BEING SENT BACK IS GETTING WHIPED CLLEAN OF ITS 
-        /// DESIRED ITEM ID - FIX IT SO IT EITHER GETS SET IN NTHE VIEW OR GETS SET IN THE CONTROLLER
         [HttpPost]
-        public ActionResult NegotiateOffer()
+        public ActionResult NegotiateOffer(Offer model)
         {
-            var formId = Convert.ToInt32(Request.Form["offerId"]);
-            var model = db.Offers.SingleOrDefault(x => x.OfferId == formId);
-            model.DesiredItems.Add(db.Items.SingleOrDefault(x => x.ItemId == formId));
-            AddProposedItems(Request.Form["items"], model);
-            model.Messages.Add(CreateMessage(Request.Form["message"], model));
-            model.Status = OfferStatus.Negotiation;
-            db.SaveChanges();
-            return RedirectToAction("Outbox");
+            var senderId = Convert.ToInt32(Request.Form["senderId"]);
+            var recieverId = Convert.ToInt32(Request.Form["recieverId"]);
+
+            if (senderId != 0 && recieverId != 0)
+            {
+                var sender = db.Users.FirstOrDefault(x => x.UserId == senderId);
+                var receiver = db.Users.FirstOrDefault(x => x.UserId == recieverId);
+
+                model.RecieverId = recieverId;
+                model.SenderId = senderId;
+                model.Reciever = receiver;
+                model.Sender = sender;
+
+                AddDesiredItems(Request.Form["desiredItems"], model);
+                AddProposedItems(Request.Form["Offereditems"], model);
+                UpdateItemStatus(model.ProposedItems.ToList());
+                UpdateItemStatus(model.DesiredItems.ToList());
+                model.Messages.Add(CreateMessage(Request.Form["message"], model));
+                model.Status = OfferStatus.Initial;
+                model.DateTime = DateTime.UtcNow;
+                model.See = OfferSee.NotSeen;
+
+                //Dealing Now with Linking Offers
+                var previousOfferId = Convert.ToInt32(Request.Form["oldOfferid"]);
+                model.PreviousOffer = previousOfferId;
+                var prevOffer = db.Offers.FirstOrDefault(x => x.OfferId == previousOfferId);
+                
+                db.Offers.Add(model);
+                db.SaveChanges();
+
+                prevOffer.NextOffer = model.OfferId;
+                prevOffer.Status = OfferStatus.Negotiation;
+
+                db.SaveChanges();
+
+                return Redirect(@Url.Action("Outbox", "Offer"));
+            }
+            else
+            {
+                return View(model);
+            }
         }
         public ActionResult Outbox()
         {
             var userId = Convert.ToInt32(Session["UserId"]);
+            if (userId == 0) return Redirect(Url.Action("Login", "Login"));
             var user = db.Users.SingleOrDefault(x => x.UserId == userId);
             var outbox =
-                user.SentOffers.Where(x => x.Status != OfferStatus.Accepted && x.Status != OfferStatus.Rejected).ToList();
-            var negotiated = user.RecievedOffers.Where(x => x.Status == OfferStatus.Negotiation).ToList();
-            var combined = outbox.Concat(negotiated).ToList();
-            var errorFree = combined.Where(x => x.DesiredItems.Count != 0).ToList();
-            return View(errorFree);
+                user.SentOffers.Where(x => x.Status != OfferStatus.Accepted && x.Status != OfferStatus.Rejected && x.Status != OfferStatus.Cancelled).ToList();
+            var errorFree = outbox.Where(x => x.DesiredItems.Count != 0).ToList();
+            var messages =
+                db.Messages.Where(
+                    x => x.Sender.UserId == user.UserId && x.Offer == null && x.Status != MessageStatus.History)
+                    .ToList();
+            var view = new List<IdateObject>();
+            view.AddRange(errorFree);
+            view.AddRange(messages);
+          
+            return View(view);
         }
 
         public ActionResult Inbox()
         {
             var userId = Convert.ToInt32(Session["UserId"]);
+            if (userId == 0) return Redirect(Url.Action("Login", "Login"));
             var user = db.Users.SingleOrDefault(x => x.UserId == userId);
             var inbox =
-                user.RecievedOffers.Where(x => x.Status != OfferStatus.Accepted && x.Status != OfferStatus.Rejected).ToList();
-            var negotiations = user.SentOffers.Where(x => x.Status == OfferStatus.Negotiation).ToList();
-            var combined = inbox.Concat(negotiations).ToList();
-            var errorFree = combined.Where(x => x.DesiredItems.Count != 0).ToList();
-                return View(errorFree);
+                user.RecievedOffers.Where(x => x.Status != OfferStatus.Accepted && x.Status != OfferStatus.Rejected && x.Status != OfferStatus.Cancelled).ToList();
+            var errorFree = inbox.Where(x => x.DesiredItems.Count != 0).ToList();
+            var messages =
+                db.Messages.Where(
+                    x => x.Reciever.UserId == user.UserId && x.Offer == null && x.Status != MessageStatus.History)
+                    .ToList();
+            var view = new List<IdateObject>();
+            view.AddRange(errorFree);
+            view.AddRange(messages);
+
+            //var boxview = new BoxView()
+            //{
+            //    Messages = messages,
+            //    Offers = errorFree
+                
+            //};
+
+                return View(view);
         }
 
         public ActionResult History()
         {
             var userId = Convert.ToInt32(Session["UserId"]);
+            if (userId == 0) return Redirect(Url.Action("Login", "Login"));
             ViewBag.UserId = userId;
             var user = db.Users.SingleOrDefault(x => x.UserId == userId);
             var History =
-                user.RecievedOffers.Where(x => x.Status == OfferStatus.Accepted || x.Status == OfferStatus.Rejected).ToList();
-            var history2 = user.SentOffers.Where(x => x.Status == OfferStatus.Accepted || x.Status == OfferStatus.Rejected).ToList();
+                user.RecievedOffers.Where(x => x.Status == OfferStatus.Accepted || x.Status == OfferStatus.Rejected || x.Status == OfferStatus.Cancelled).ToList();
+            var history2 = user.SentOffers.Where(x => x.Status == OfferStatus.Accepted || x.Status == OfferStatus.Rejected || x.Status == OfferStatus.Cancelled).ToList();
             var combined = History.Concat(history2).ToList();
-            var errorFree = combined.Where(x => x.DesiredItems.Count != 0).ToList();
-            return View(errorFree);
+            var errorFree = combined.Where(x => x.DesiredItems.Count != 0 && x.NextOffer == 0).ToList();
+            var messages =
+                db.Messages.Where(
+                    x =>
+                        (x.Reciever.UserId == user.UserId || x.Sender.UserId == user.UserId) && x.Offer == null &&
+                        x.Status == MessageStatus.History).ToList();
+            var view = new List<IdateObject>();
+            view.AddRange(errorFree);
+            view.AddRange(messages);
+
+            return View(view);
         }
         public ActionResult RemoveOffer(int id)
         {
+            RemovePreviousOffers(id);
+            return RedirectToAction("Outbox", "Offer");
+        }
+
+        public void RemovePreviousOffers(int id)
+        {
             var offer = db.Offers.SingleOrDefault(x => x.OfferId == id);
+            if (offer == null)
+            {
+                return;
+            }
             var messages = offer.Messages.ToList();
             messages.ForEach(x => db.Messages.Remove(x));
+            if (offer.PreviousOffer != 0)
+            {
+                RemovePreviousOffers(offer.PreviousOffer);
+            }
             db.Offers.Remove(offer);
             db.SaveChanges();
-            return RedirectToAction("Outbox", "Offer");
         }
 
         public ActionResult RejectOffer(int id)
         {
             var offer = db.Offers.SingleOrDefault(x => x.OfferId == id);
+            if (offer == null)
+            {
+                return RedirectToAction("Warning", "Offer");
+            }
             offer.Status = OfferStatus.Rejected;
-            var value = offer.Status;
-            //Assuming they were only in one offer at the time
-            //I think offer status of "Negotiation" should be removed
-            //And replaced with a count of how many offers the item is in
             itemsRejected(offer.DesiredItems.ToList());
             itemsRejected(offer.ProposedItems.ToList());
+            if (offer.PreviousOffer != 0)
+            {
+                RemovePreviousOffers(offer.PreviousOffer);
+            }
             db.SaveChanges();
             return RedirectToAction("History", "Offer");
         }
 
         public ActionResult AcceptOffer(int id)
         {
+            //Remove other offers 
             var offer = db.Offers.SingleOrDefault(x => x.OfferId == id);
-            offer.Status = OfferStatus.Accepted;
+            if (offer == null)
+            {
+               return RedirectToAction("Warning", "Offer");
+            }
             itemsAccepted(offer.DesiredItems.ToList());
             itemsAccepted(offer.ProposedItems.ToList());
+            CancelOffers(offer.DesiredItems.ToList());
+            CancelOffers(offer.ProposedItems.ToList());
+            if (offer.PreviousOffer != 0)
+            {
+                RemovePreviousOffers(offer.PreviousOffer);
+            }
+            offer.Status = OfferStatus.Accepted;
             db.SaveChanges();
             return RedirectToAction("History", "Offer");
+        }
+
+        public void CancelOffers(IEnumerable<Item> items)
+        {   
+            var user = items.First().User;
+            foreach (var item in items)
+            {
+                user.RecievedOffers.Where(x => x.DesiredItems.Any(y => y.ItemId == item.ItemId && x.Status != OfferStatus.Rejected)).ForEach(z => z.Status = OfferStatus.Cancelled);
+                user.SentOffers.Where(x => x.ProposedItems.Any(y => y.ItemId == item.ItemId && x.Status != OfferStatus.Rejected)).ForEach(z => z.Status = OfferStatus.Cancelled);
+            }
         }
         public void AddProposedItems(string items, Offer model)
         {
@@ -192,7 +309,7 @@ namespace Tradr.Controllers
         {
             var newMessage = new Message()
             {
-                DateTimeMessage = DateTime.UtcNow,
+                DateTime = DateTime.UtcNow,
                 MessageText = message,
                 Reciever = model.Reciever,
                 Sender = model.Sender
@@ -222,6 +339,11 @@ namespace Tradr.Controllers
             {
                 item.Status = ItemStatus.Available;
             }
+        }
+
+        public ActionResult Warning()
+        {
+            return View();
         }
     }
 }

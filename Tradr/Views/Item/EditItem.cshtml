@@ -6,19 +6,20 @@
 
 @using (Html.BeginForm("EditItem", "Item", FormMethod.Post, new { @id = "edit-item"}))
 {
-    <span id="ErrorMessage">All Fields Must Be Filled In</span>
-    <div class="col-sm-6">   
+    <span id="warnings">All Fields Must Be Filled In</span>
+    <div class="col-sm-6" style="height: 500px;">   
         <div class="form-group dropzone" id="dropzoneHere">
         </div>
-        <input type="hidden" name="Images" id="Images" value="@Model.Images.ToString()"/>
+        <input type="hidden" name="Images" id="Images" value="@String.Join(",", Model.Images.Select(x => x.ItemImage))"/>
+         @foreach (var image in Model.Images)
+         {
+            <div class="sm-img" style="background-image: url('@Url.Content("~/Content/images/items/" + @image.ItemImage)')" id="@image.ItemImage"><div class="remove">Remove</div></div>
+         }
  </div>
-     <div class="text-center">
-        @foreach (var image in Model.Images)
-        {
-            <div class="sm-img" style="background-image: url('@Url.Content("~/Content/images/items/" + @image.ItemImage)')"></div>
-        }
-    </div>
+
     <div class="col-sm-6">
+        
+    <div id="saved">Changes have been saved!</div>
         <div class="form-group">
             <label for="Title">Title</label>
             <input type="text" id="Title" name="Title" class="form-control" value="@Model.Title"/>
@@ -33,7 +34,7 @@
     <div class="col-sm-6">
         <div class="form-group">
             <label for="Description">Description</label>
-            <textarea id="Description" name="Description" class="form-control" rows="5" value="@Model.Description"></textarea>
+            <textarea id="Description" name="Description" class="form-control" rows="5">@Model.Description</textarea>
         </div>
     </div>
             <div class="col-sm-6">
@@ -42,17 +43,17 @@
             <input type="text" id="Tags" name="Tags" class="form-control" value="@ViewBag.Tags"/>
         </div>
     </div>
-        <div class="col-sm-6 col-sm-offset-6">
+        <div class="col-sm-6">
         <div class="form-group">
             <label for="Wants">Trade Wish List</label>
             <input type="text" id="Wants" name="Wants" class="form-control" value="@ViewBag.Wants"/>
         </div>
     </div>
 
-    
+   <input type="hidden" id="ItemId" name="ItemId" value="@Model.ItemId"/>
    <div class="col-sm-12"><input type="submit" id="Submit" class="pull-right btn" value="Submit"/></div> 
-}
 
+}
 <script type="text/javascript">
 
     Dropzone.options.dropzoneHere = {
@@ -77,15 +78,36 @@
         'placeholderColor': '#aaaaaa'
     });
 
+    $(".remove").click(function() {
+        var remove = $(this);
+        var parent = remove.parent();
+        var id = parent.attr("id");
+
+        $("#Images").val($("#Images").val().replace(",,", ",").replace(/^[,]+|[,]$/, "").replace(id, ""));
+        parent.hide();
+
+    });
+
     $('#Submit').click(function () {
-        $("#new-item input, #new-item textarea").each(function () {
+        $(".col-sm-6 input:not('#Tags_tag'):not('#Wants_tag'), .col-sm-6 textarea").each(function () {
             var input = $(this);
             if (input.val() == "") {
-                // event.preventDefault();
-                // $("#ErrorMessage").show();
-            }
+                 event.preventDefault();
+                 $("#warnings").show();
+             } else if (input.attr("id") == "Value") {
+                 var pFloat = parseFloat(input.val());
+                if (isNaN(pFloat)) {
+                    input.val("");
+                } else {
+                    input.val(pFloat);
+                }
+             }
         });
     });
+
+     if ("@ViewBag.Saved" == "True") {
+         $("#saved").show();
+     }
 
    
 </script>

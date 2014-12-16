@@ -1,0 +1,29 @@
+﻿@using System.Web.UI.WebControls
+@using Tradr.Models
+@model Message
+
+@{
+    var sentMessageName = (ViewBag.view == OfferListView.Inbox) ? String.Format("Sent By:<a href='{0}'> {1}</a>", @Url.Action("Profile", "User", new { id = Model.Sender.UserId }), Model.Sender.FirstName)
+        : String.Format("Sent to:<a href='{0}'> {1}</a>", @Url.Action("Profile", "User", new { id = Model.Reciever.UserId }), Model.Reciever.FirstName); ;
+    sentMessageName = (ViewBag.view == OfferListView.History) ? String.Format("Sent By: {0} <br/> Sent To: {1}", Model.Sender.FirstName, Model.Reciever.FirstName) : sentMessageName;
+        }
+
+            <div class="sent-message-wrapper">
+                <div class="sent-message-container">
+                    <div class="sent-message-name">@Html.Raw(sentMessageName)</div>
+                    <div class="sent-message">@Model.MessageText</div>
+                    @if(ViewBag.noButtons != "true"){
+                        <div class="buttons">
+                            <div class="offer-date">Date: @Model.DateTime</div>
+                            @if (ViewBag.view != OfferListView.Outbox)
+                            {
+                                <a href="@Url.Action("Message", "User", new { id = Model.Sender.UserId, previous = Model.MessageId })"><button class="btn btn-info">Reply </button></a>
+                            }
+                            @if (ViewBag.view != OfferListView.History)
+                            {
+                                <a href="@Url.Action("ArchiveMessage", "User", new { id = Model.MessageId })"><button class="btn btn-danger">Hide </button></a>   
+                            }
+                        </div>
+                    }
+                </div>
+            </div>

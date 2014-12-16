@@ -16,6 +16,8 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
     <UseIISExpress>false</UseIISExpress>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -151,6 +153,22 @@
     <Compile Include="Migrations\201411091646114_SeePropertyToOffers.Designer.cs">
       <DependentUpon>201411091646114_SeePropertyToOffers.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201411152153333_PreviousOfferInt.cs" />
+    <Compile Include="Migrations\201411152153333_PreviousOfferInt.Designer.cs">
+      <DependentUpon>201411152153333_PreviousOfferInt.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201411181830350_AddedNextOffer.cs" />
+    <Compile Include="Migrations\201411181830350_AddedNextOffer.Designer.cs">
+      <DependentUpon>201411181830350_AddedNextOffer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201412101955404_MessageStatusVariable.cs" />
+    <Compile Include="Migrations\201412101955404_MessageStatusVariable.Designer.cs">
+      <DependentUpon>201412101955404_MessageStatusVariable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201412120635215_IenumerableVariables.cs" />
+    <Compile Include="Migrations\201412120635215_IenumerableVariables.Designer.cs">
+      <DependentUpon>201412120635215_IenumerableVariables.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Mappings.cs" />
     <Compile Include="Models\tradr.cs" />
@@ -281,11 +299,20 @@
     <Content Include="Views\Item\ItemDetails.cshtml" />
     <Content Include="Views\Offer\MakeAnOffer.cshtml" />
     <Content Include="Views\Offer\Outbox.cshtml" />
-    <Content Include="Views\Shared\ItemBox.cshtml" />
-    <Content Include="Views\Offer\Inbox.cshtml" />
+    <Content Include="Views\Shared\SearchBox.cshtml" />
+    <Content Include="Views\Offer\InboxOld.cshtml" />
     <Content Include="Views\Offer\History.cshtml" />
     <Content Include="Views\Offer\ViewOffer.cshtml" />
     <Content Include="Views\Offer\NegotiateOffer.cshtml" />
+    <Content Include="Views\Shared\OfferList.cshtml" />
+    <Content Include="Views\Shared\DesiredList.cshtml" />
+    <Content Include="Views\Shared\InfoItemBox.cshtml" />
+    <Content Include="Views\Shared\OfferItemBox.cshtml" />
+    <Content Include="Views\Offer\Warning.cshtml" />
+    <Content Include="Views\User\Profile.cshtml" />
+    <Content Include="Views\User\Message.cshtml" />
+    <Content Include="Views\Shared\SentMessage.cshtml" />
+    <Content Include="Views\Offer\Inbox.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201410142045466_Inital.resx">
@@ -299,6 +326,18 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201411091646114_SeePropertyToOffers.resx">
       <DependentUpon>201411091646114_SeePropertyToOffers.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201411152153333_PreviousOfferInt.resx">
+      <DependentUpon>201411152153333_PreviousOfferInt.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201411181830350_AddedNextOffer.resx">
+      <DependentUpon>201411181830350_AddedNextOffer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201412101955404_MessageStatusVariable.resx">
+      <DependentUpon>201412101955404_MessageStatusVariable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201412120635215_IenumerableVariables.resx">
+      <DependentUpon>201412120635215_IenumerableVariables.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
@@ -330,6 +369,13 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

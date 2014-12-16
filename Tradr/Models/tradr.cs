@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Entity.ModelConfiguration;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Web;
 using System.Web.Services.Description;
 using Microsoft.Ajax.Utilities;
@@ -119,11 +120,20 @@ namespace Tradr.Models
         }
     }
 
-    public class Offer
+    public class Offer : IdateObject
     {
         public int OfferId { get; set; }
-        public DateTime DateTimeInitial { get; set; }
+
+        private DateTime DateTimeInital { get; set; }
+        public DateTime DateTime
+        {
+            get { return DateTimeInital; }
+            set { DateTimeInital = value; }
+        }
+
         public OfferStatus Status { get; set; }
+        public int PreviousOffer { get; set; }
+        public int NextOffer { get; set; }
         public OfferSee See { get; set; }
 
         public virtual User Sender { get; set; }
@@ -141,17 +151,23 @@ namespace Tradr.Models
             ProposedItems = new List<Item>();
             DesiredItems = new List<Item>();
             Messages = new List<Message>();
-            DateTimeInitial = DateTime.UtcNow;
+            DateTime = DateTime.UtcNow;
         }
     }
 
 
 
-    public class Message
+    public class Message : IdateObject
     {
         public int MessageId { get; set; }
-        public DateTime DateTimeMessage { get; set; }
+        private DateTime DateTimeMessage { get; set; }
+        public DateTime DateTime {
+            get { return DateTimeMessage; }
+            set { DateTimeMessage = value; }
+        }
         public string MessageText { get; set; }
+
+        public MessageStatus Status { get; set; }
 
         public virtual Offer Offer { get; set; }
 
@@ -160,11 +176,30 @@ namespace Tradr.Models
 
         public Message()
         {
-            //Offer = new Offer();
-            //Sender = new User();
-            //Reciever = new User();
             DateTimeMessage = DateTime.UtcNow;
+            Status = MessageStatus.Current;
         }
+    }
+
+    public class MessageView
+    {
+        public Message PreviousMessage { get; set; }
+        public Item Item { get; set; }
+        public int SenderId { get; set; }
+        public int RecieverId { get; set; }
+        public string Message { get; set; }
+    }
+
+    public class BoxView
+    {
+        public List<Message> Messages { get; set; }
+        public List<Offer> Offers { get; set; } 
+    }
+
+    public interface IdateObject
+    {
+        DateTime DateTime { get; set; }
+
     }
 
     public enum OfferStatus
@@ -172,7 +207,8 @@ namespace Tradr.Models
         Negotiation,
         Rejected,
         Accepted,
-        Initial
+        Initial,
+        Cancelled 
     }
 
     public enum ItemStatus
@@ -186,5 +222,18 @@ namespace Tradr.Models
     {
         NotSeen,
         Seen
+    }
+
+    public enum OfferListView
+    {
+        Inbox,
+        Outbox,
+        History
+    }
+
+    public enum MessageStatus
+    {
+        Current, 
+        History
     }
 }

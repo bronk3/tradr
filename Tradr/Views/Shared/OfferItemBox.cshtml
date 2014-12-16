@@ -1,0 +1,34 @@
+﻿@using System.Web.UI.WebControls
+@using Tradr.Models
+@model Item
+@{
+    ViewBag.Title = "OfferItemBox";
+    Layout = null;
+    var desiredId = Convert.ToInt32(ViewBag.desiredItem);
+    var ListString = new List<string>();
+    var o = ViewBag.oItems;
+    var d = ViewBag.dItems;
+    if (o != null && o != "")
+    {
+        var stringList = o + "," + d;
+        ListString = new List<string>(stringList.Split(','));
+    }
+    else
+    {
+        ListString.Add(d);
+    }
+    
+    var ListInt = ListString.Select(s => int.Parse(s)).ToList();
+}
+
+<label for="@Model.ItemId">
+    <div class="item-box">
+        <input type="checkbox" name="@Model.ItemId" data-cost="@Convert.ToInt32(Model.Value)" value="@Model.ItemId" @if (ListInt.Any(x => x == Model.ItemId))
+                                                                                                                    { <text>checked</text> }>
+        @*<a href="@Url.Action("ItemDetails", "Item", new{id = @Model.ItemId})">*@
+        <div class="item-image" style="background-image: url('@Url.Content("~/Content/images/items/" + Model.Images.First().ItemImage)')"></div>
+        <div class="item-title"><span>@Model.Title</span></div>
+        <div class="item-value"><span>$ @Model.Value</span></div>
+        @*</a>*@
+                    
+    </div></label>

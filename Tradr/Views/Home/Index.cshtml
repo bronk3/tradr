@@ -4,34 +4,11 @@
     ViewBag.Title = "Home Page";
 }
 
-<div><h7>Suggestions for you:</h7></div>
+<div><h7>@ViewBag.Header</h7></div>
 
  @foreach (var item in Model)
         {
             {
-                Html.RenderPartial("ItemBox", item);
+                Html.RenderPartial("SearchBox", item);
             }
     }
-
-
-
-
-@*<div class="container-outter">
-    <div class="container-inner" id="check">
-        @foreach (var item in Model)
-        {
-            <div class="item-container text-center">
-                <a href><img src="@Url.Content("~/Content/images/items/" + item.Images.First().ItemImage)"/></a>
-                <div class="title-tag">@item.Title</div>
-                            </div>
-        }
-    </div>
-    <a class="left carousel-control" role="button" data-slide="prev">
-        <span class="glyphicon glyphicon-chevron-left"></span>
-    </a>
-    <a class="right carousel-control" role="button" data-slide="next">
-        <span class="glyphicon glyphicon-chevron-right"></span>
-    </a>
-</div>
-
-*@

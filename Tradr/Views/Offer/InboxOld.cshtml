@@ -1,0 +1,69 @@
+﻿@using System.Collections
+@using System.Web.UI.WebControls
+@using Microsoft.Ajax.Utilities
+@using Tradr.Models
+@model BoxView
+@{
+    ViewBag.Title = "Inbox";
+    ViewBag.Nav = "#nav4";
+    var GroupedItemList = Model.Offers.GroupBy(x => x.DesiredItems.FirstOrDefault().ItemId, x => x, (key, g) => new { ItemId = key, offers = g.ToList() });
+
+    var first = true;
+    }
+<div class="offers" style="width: 90%; margin: 0 auto;">
+    
+    @if (Model.Messages.Count != 0)
+    {
+        foreach (var message in Model.Messages.OrderByDescending(x => x.DateTime))
+        {
+            ViewBag.view = OfferListView.Inbox;
+            Html.RenderPartial("SentMessage", message);
+        }
+    }
+
+
+    @if (Model.Offers.Count != 0)
+    {
+        foreach (var ListOffersByItemId in GroupedItemList)
+        {
+            first = true;
+            foreach (Offer offer in ListOffersByItemId.offers.OrderByDescending(x => x.DateTime))
+            {
+                
+                if (offer.DesiredItems.Count != 0 && offer.ProposedItems.Count != 0 && offer.Messages.Count != 0)
+                {
+                    if (first)
+                    {
+
+                        ViewBag.view = OfferListView.Inbox;
+                        Html.RenderPartial("DesiredList", offer);
+                        first = false;
+                    }
+                    else
+                    { <br /><div class="desired-image-filler"></div> }
+
+                    {
+                        ViewBag.view = OfferListView.Inbox;
+                        Html.RenderPartial("OfferList", offer);
+                    }
+                    <br />
+                }
+            }
+        }
+    }
+</div>
+<script>
+    $(function() {
+
+        $(window).load(function() {
+            $(".Negotiation").each(function() {
+                var negotiation = $(this);
+                var nextOffer = negotiation.attr("data-next");
+                negotiation.prepend("<div class='cover-negotiated'><a href='" + nextOffer + "'><button class='btn btn-success btn-lg'>View Newest Offer</button></a></div>");
+                //$("<div id='cover-negotiated'><a href='" + nextOffer + "'><button class='btn btn-info'>View Newest Offer</button></a></div>").insertAfter(negotiation);
+            });
+        });
+
+    });
+</script>
+

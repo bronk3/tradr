@@ -1,123 +1,13 @@
-﻿@*@using Tradr.Models
-@model Offer
-@{
-    ViewBag.Title = "Make An Offer";
-}
-
-<div id="make-an-offer">
-    <div><button class="btn btn-primary" id="include-more-desired">Show All Recievers Items</button></div>
-    @foreach (var item in Model.Reciever.Items){
-        <div class="desired-item" id="desiredId_@item.ItemId" @if (Model.DesiredItems.First().ItemId == item.ItemId){<text>style="display: inline-block;"</text>}>
-            <div class="title"><p>Desired Item: </p></div>
-            <div class="image" style="background-image: url('@Url.Content("~/Content/images/items/" + @item.Images.First().ItemImage)')"></div>
-            <div class="item-description">
-                <p>
-                    <span class="title"> Description: </span>
-                    @item.Description
-                </p>
-                <p>
-                    <span class="title"> Value: </span>
-                    @item.Value
-                </p>
-                <p>
-                    <span class="title"> Wish List: </span>
-                    @string.Join(", ", item.Wants.Select(x => x.TagName)) 
-                
-                </p>
-            </div>
-        </div>
-    }
-    <div id="all-reciever-items">
-        <div class="title"><p>Their Items: </p></div>
-        @foreach (var item in Model.Reciever.Items)
-        {
-            <div class="reciever-items">
-                <input type="checkbox" name="@item.Title" data-cost="@Convert.ToInt32(item.Value)" value="@item.ItemId" @if (Model.DesiredItems.First().ItemId == item.ItemId) { <text>checked</text> }>
-                @{
-                    Html.RenderPartial("ItemBox", item);
-                }
-            </div>
-        }
-    </div>
-
-    <div id="all-offer-items">
-        <div class="title"><p>Your Items: </p></div>
-        @foreach (var item in Model.Sender.Items)
-        {
-            <div class="proposer-items">
-                <input type="checkbox" name="@item.Title" data-cost="@Convert.ToInt32(item.Value)" value="@item.ItemId">
-                @{
-                    Html.RenderPartial("ItemBox", item);
-                }
-            </div>
-        }
-    </div>
-    
-    <div id="total">
-        
-        <div id="total-value" class="title">Total Value: <span></span></div>
-        <div id="total-items" class="title">Total Items: <span></span></div>
-    </div>
-    <div id="message-wrapper">
-        <div class="title">Message: </div>
-        <div id="message-box" contenteditable="true">
-        </div>
-        <div class="buttons">
-            @using (Html.BeginForm("MakeAnOffer", "Offer", FormMethod.Post, new { @id = "offer" }))
-            {
-                <input type="hidden" name="desiredItems" id="desiredItems" value=""/>
-                <input type="hidden" name="items" id="items" value=""/>
-                <input type="hidden" name="message" id="message" value=""/>
-                <input type="hidden" name="desiredId" id="desiredId" value="@Model.DesiredItems.First().ItemId"/>
-                <input type="hidden" name="recieverId" id="recieverId" value="@Model.RecieverId"/>
-                <input type="hidden" name="senderId" id="senderId" value="@Model.SenderId"/>
-                <input type="submit" class="btn btn-primary" name="submit" id="submit" value="Send Offer"/>
-                <a href="@Url.Action("Index", "Home")"><button class="btn btn-default">Cancel</button></a>
-            }
-           
-        </div>
-    </div>
-    <div style="clear:both"></div>
-</div>
-
-<script type="text/javascript">
-    $(function () {
-        $(".proposer-items").find("input[type='checkbox']").on("click", function () {
-            var names = $(".proposer-items").find("input:checked").map(function () { return $(this).attr("name"); }).get();
-            var value = $(".proposer-items").find("input:checked").map(function () { return $(this).data("cost"); }).get();
-            $("#total-value span").html("$ " + eval(value.join('+')));
-            $("#total-items span").html(names.join(seperator = ", "));
-        });
-        $(".reciever-items").find("input[type='checkbox']").on("click", function () {
-            var ids = $(".reciever-items input:checked").map(function () { return $(this).val(); }).get();
-            $(".desired-item").hide();
-            for (var i = 0; i < ids.length; i++) {
-                var div = $("#desiredId_" + ids[i]);
-                div.css("display", "inline-block");
-            }
-            console.log(ids.toString());
-        });
-        $("#submit").click(function () {
-            $("#desiredItems").val($(".reciever-items input:checked").map(function () { return $(this).val(); }).get().join());
-            $("#items").val($(".proposer-items input:checked").map(function () { return $(this).val(); }).get().join());
-            $("#message").val($("#message-box").html());
-        });
-        $("#include-more-desired").click(function () {
-            $("#all-reciever-items").slideDown().css("display", "inline-block");
-        });
-    });
-</script>*@
-
-
-
-@using System.Security.Cryptography
+﻿@using System.Web.UI.WebControls
 @using Tradr.Models
 @model Offer
 @{
     ViewBag.Title = "Negotiate Offer";
+    var dItems = string.Join(",", Model.DesiredItems.Select(x => x.ItemId));
+    var oItems = string.Join(",", Model.ProposedItems.Select(x => x.ItemId));
 }
 <div id="view-offer">
-    <div class="title">Desired Items:</div>
+    <div class="title">Your Items:</div>
     <div id="desired-items-container">
         @foreach (var item in Model.DesiredItems)
         {
@@ -132,7 +22,7 @@
             </div>
         }
     </div>
-    <div class="title">Proposed Items:</div>
+    <div class="title">@Html.Raw(String.Format("<a href='{0}'>{1}'s</a>", @Url.Action("Profile", "User", new { id = Model.Reciever.UserId }), Model.Sender.FirstName)) Items:</div>
     <div id="proposed-container">
         @foreach (var item in Model.ProposedItems)
         {
@@ -146,7 +36,7 @@
             </div>
         }
     </div>
-    
+    <div class="title">Message:</div>
     <div id="message-recieved">
         @foreach (var message in Model.Messages)
         {
@@ -155,73 +45,52 @@
     </div>
 
     <div class="buttons">
-        <div class="offer-date">Date: @Model.DateTimeInitial</div>
+        <div class="offer-date">Date: @Model.DateTime</div>
         <div class="status">@Model.Status</div>
+        <button id="negotiate-option" class="btn btn-primary">Negotiate</button>
         <a href="@Url.Action("AcceptOffer", "Offer", new { id = Model.OfferId })"><button class="btn btn-success">Accept Offer</button></a>
         <a href="@Url.Action("RejectOffer", "Offer", new { id = Model.OfferId })"><button class="btn btn-danger">Reject Offer</button></a>    
         <a href="@Url.Action("Outbox", "Offer")"><button class="btn btn-info">Back</button></a>
     </div>
     
     
-    <button id="negotiate-option" class="btn">Click To Negotiate</button></div>
+</div>
  
  
-<div id="make-an-offer">
-    <div class="title"><p>Proposed Item: </p></div>
-    @foreach (var item in Model.Sender.Items)
-    {
-        <div class="proposed-item" id="desiredId_@item.ItemId" @if (Model.ProposedItems.Any(x => x.ItemId == item.ItemId))
-                                                              {<text>style="display: inline-block;"</text>}>
-            <div class="image" style="background-image: url('@Url.Content("~/Content/images/items/" + @item.Images.First().ItemImage)')"></div>
-            <div class="item-description">
-                <p>
-                    <span class="title"> Description: </span>
-                    @item.Description
-                </p>
-                <p>
-                    <span class="title"> Value: </span>
-                    @item.Value
-                </p>
-                <p>
-                    <span class="title"> Wish List: </span>
-                    @string.Join(", ", item.Wants.Select(x => x.TagName)) 
-                
-                </p>
-            </div>
-        </div>
-    }
-    <div id="all-offer-items">
-        <div class="title"><p>Their Items: </p></div>
-        @foreach (var item in Model.Sender.Items)
+<div id="make-an-offer" style="display: none;">
+    <div id="warnings">**All Fields Must be Filled Out</div>
+    <div id="glossary">
+        <p><span class="oldoffer">***</span> -Items in previous Offer</p>
+        <p style="border: 3px solid green; display: inline-block;">Green Border are Items in new Offer</p>
+    </div>
+    <div id="reciever-items">
+        <div class="title"><p>Their (@Model.Sender.FirstName 's) Items: </p></div>
+        @foreach (var item in Model.Sender.Items.Where(x => x.Status != ItemStatus.Unavailable))
         {
-            <div class="proposer-items">
-                <input type="checkbox" name="@item.Title" data-cost="@Convert.ToInt32(item.Value)" value="@item.ItemId" @if (Model.ProposedItems.Any(x => x.ItemId == item.ItemId))
-                                                                                                                        { <text>checked</text> }>
-                @{
-                    Html.RenderPartial("ItemBox", item);
-                }
-            </div>
+            {
+                ViewBag.oItems = oItems;
+                ViewBag.dItems = dItems;
+                Html.RenderPartial("OfferItemBox", item);
+            }
         }
     </div>
-    <div id="all-reciever-items" style="display:block;">
+
+    <div id="proposer-items">
         <div class="title"><p>Your Items: </p></div>
-        @foreach (var item in Model.Reciever.Items)
+        @foreach (var item in Model.Reciever.Items.Where(x => x.Status != ItemStatus.Unavailable))
         {
-            <div class="reciever-items">
-                <input type="checkbox" name="@item.Title" data-cost="@Convert.ToInt32(item.Value)" value="@item.ItemId" @if (Model.DesiredItems.Any(x => x.ItemId == item.ItemId))
-                                                                                                                        { <text>checked</text> }>
-                @{
-                    Html.RenderPartial("ItemBox", item);
-                }
-            </div>
+            {
+               
+                Html.RenderPartial("OfferItemBox", item);
+            }
         }
     </div>
     
-    <div id="total">
+@*    <div id="total">
         
         <div id="total-value" class="title">Total Value: <span></span></div>
         <div id="total-items" class="title">Total Items: <span></span></div>
-    </div>
+    </div>*@
     <div id="message-wrapper">
         <div class="title">Message: </div>
         <div id="message-box" contenteditable="true">
@@ -231,40 +100,78 @@
     {
         <div class="buttons">
             <input type="hidden" name="desiredItems" id="desiredItems" value=""/>
-            <input type="hidden" name="items" id="items" value=""/>
+            <input type="hidden" name="Offereditems" id="Offereditems" value=""/>
             <input type="hidden" name="message" id="message" value=""/>
-            <input type="hidden" name="desiredId" id="desiredId" value="@Model.DesiredItems.First().ItemId"/>
-            <input type="hidden" name="recieverId" id="recieverId" value="@Model.RecieverId"/>
-            <input type="hidden" name="senderId" id="senderId" value="@Model.SenderId"/>
+            <input type="hidden" name="recieverId" id="recieverId" value="@Model.SenderId"/>
+            <input type="hidden" name="senderId" id="senderId" value="@Model.RecieverId"/>
+            <input type="hidden" name="oldOfferid" id="oldOfferid" value="@Model.OfferId"/>
             <input type="submit" class="btn btn-primary" name="submit" id="submit" value="Send Offer"/>
             <a href="@Url.Action("Index", "Home")"><button class="btn btn-default">Cancel</button></a>
             
         </div>
-@*        </div>*@
+
     }  
     <div style="clear:both"></div>
 </div>
 <script>
-    $(function () {
-        $(".reciever-items").find("input[type='checkbox']").on("click", function () {
-            var names = $(".reciever-items").find("input:checked").map(function () { return $(this).attr("name"); }).get();
-            var value = $(".reciever-items").find("input:checked").map(function () { return $(this).data("cost"); }).get();
+    $(function() {
+
+        //Green border When Checked
+        $(window).load(function() {
+            var checked = $("input:checked");
+            checked.each(function() {
+                var action = $(this);
+                action.parent().css("border", "4px solid green");
+                action.parent().prepend("<span class='oldoffer'>***</span>");
+            });
+            if ("@ViewBag.Negotiation" == "@OfferStatus.Negotiation") {
+                $("#view-offer").hide();
+                $("#make-an-offer").show();
+            }
+        });
+        $(".item-box").on("click load", function () {
+            var clicked = $(this);
+            var checkbox = clicked.find("input[type='checkbox']");
+
+            if (!checkbox.prop("checked")) {
+                checkbox.prop("checked", true);
+                clicked.css("border", "4px solid green");
+            }
+            else {
+                checkbox.prop("checked", false);
+                clicked.css("border", "0");
+            }
+        });
+
+        $(".reciever-items").find("item-box").on("click", function () {
+            var checked = $(this).find("input[type='checkbox']");
+            var names = $(".reciever-items").find("input:checked").map(function () { return checked.attr("name"); }).get();
+            var value = $(".reciever-items").find("input:checked").map(function () { return checked.data("cost"); }).get();
             $("#total-value span").html("$ " + eval(value.join('+')));
             $("#total-items span").html(names.join(seperator = ", "));
         });
-        $(".proposer-items").find("input[type='checkbox']").on("click", function () {
-            var ids = $(".proposer-items input:checked").map(function () { return $(this).val(); }).get();
-            $(".desired-item").hide();
-            for (var i = 0; i < ids.length; i++) {
-                var div = $("#desiredId_" + ids[i]);
-                div.css("display", "inline-block");
-            }
+        $(".proposer-items").find("item-box").on("click", function () {
+            var checked = $(this).find("input[type='checkbox']");
+            var ids = $(".proposer-items input:checked").map(function () { return checked.val(); }).get();
         });
         $("#submit").click(function () {
-            $("#desiredItems").val($(".reciever-items input:checked").map(function () { return $(this).val(); }).get().join());
-            $("#items").val($(".proposer-items input:checked").map(function () { return $(this).val(); }).get().join());
-            $("#message").val($("#message-box").html());
+            $("#desiredItems").val($("#reciever-items input:checked").map(function () { return $(this).val(); }).get().join());
+            $("#Offereditems").val($("#proposer-items input:checked").map(function () { return $(this).val(); }).get().join());
+            $("#message").val($.trim($("#message-box").html()));
+
+            if (
+            $("#desiredItems").val() == "" ||
+            $("#Offereditems").val() == "" ||
+            $.trim($("#message").val()) == "") {
+                $("#warnings").show();
+                 $('html, body').animate({
+                    scrollTop: 0
+                }, 500);
+                event.preventDefault();
+            }
         });
+
+
         $(".proposed-image").click(function () {
             var image = $(this);
             if (image.next().css("display") == "none") {
@@ -272,15 +179,16 @@
                 image.parent().css("display", "block");
                 image.parent().parent().prepend(image.parent());
             } else {
-                image.next().css("display", "none");
-                image.parent().css("display", "inline");
-                image.parent().parent().append(image.parent());
+                image.next().slideUp("slow", function () {
+                    image.parent().css("display", "inline");
+                    image.parent().parent().append(image.parent());
+                });
             }
         });
 
         $("#negotiate-option").click(function () {
-            $("#view-offer").slideUp();
-            $("#negotiate").slideDown();
+            $("#view-offer").slideUp('slow');
+            $("#make-an-offer").show();
         });
     });
 </script>

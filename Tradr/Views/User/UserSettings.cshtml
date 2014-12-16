@@ -6,19 +6,96 @@
 
 @using (Html.BeginForm("UserSettings", "User", FormMethod.Post, new { @id = "user-settings" }))
 {
-  
-        <div class="col-sm-3 col-sm-offset-4">
-            <div class="form-group">
-                <label for="EmailAddress">Email: </label>
-                <input type="text" id="EmailAddress" name="EmailAddress" class="form-control" value="@Model.EmailAddress"/>
-            </div>
+    
+    <div class="col-sm-5 col-sm-offset-3" style="padding: 20px 0;">
+        Add Some Additional Information to your account! 
+        <div id="warnings">All Required Fields Must be Filled Out</div>
+        <div id="saved">Changes have been saved!</div>
+    </div>
+    <div class="col-sm-3 col-sm-offset-4">
+        <div class="form-group">
+            <label for="FirstName">First Name:* </label>
+            <input type="text" id="FirstName" name="FirstName" class="form-control required" value="@Model.FirstName"/>
         </div>
-        <div class="col-sm-3 col-sm-offset-4">
-            <div class="form-group">
-                <label for="Password">Password: </label>
-                <input type="password" id="Password" name="Password" class="form-control"  value="@Model.Password"/>
-            </div>
+    </div>
+    <div class="col-sm-3 col-sm-offset-4">
+        <div class="form-group">
+            <label for="LastName">Last Name:* </label>
+            <input type="text" id="LastName" name="LastName" class="form-control required" value="@Model.LastName"/>
         </div>
-        <div class="col-sm-3 col-sm-offset-4"><input type="submit" id="Submit" class="pull-right btn" value="Submit"/></div> 
-        
+    </div>
+    <div class="col-sm-3 col-sm-offset-4">
+        <div class="form-group">
+            <label for="EmailAddress">Email:* </label>
+            <input type="text" id="EmailAddress" name="EmailAddress" class="form-control required" value="@Model.EmailAddress"/>
+        </div>
+    </div>
+    <div class="col-sm-3 col-sm-offset-4">
+        <div class="form-group">
+            <label for="City">City:* </label>
+            <input type="text" id="City" name="City" class="form-control required" value="@Model.City"/>
+        </div>
+    </div>
+    <div class="col-sm-3 col-sm-offset-4">
+        <div class="form-group">
+            <label for="Street">Street: </label>
+            <input type="text" id="Street" name="Street" class="form-control" value="@Model.Street"/>
+        </div>
+    </div>
+    <div class="col-sm-3 col-sm-offset-4">
+        <div class="form-group">
+            <label for="AreaCode">Postal Code: </label>
+            <input type="text" id="AreaCode" name="AreaCode" class="form-control" value="@Model.AreaCode"/>
+        </div>
+    </div>
+    <div class="col-sm-3 col-sm-offset-4">
+        <div class="form-group">
+            <label for="Phone">Phone: </label>
+            <input type="text" id="Phone" name="Phone" class="form-control" value="@Model.Phone"/>
+        </div>
+    </div>
+    <div class="col-sm-3 col-sm-offset-4">
+        <div class="form-group">
+            <label for="SecondaryEmail">Secondary Email: </label>
+            <input type="text" id="SecondaryEmail" name="SecondaryEmail" class="form-control" value="@Model.SecondaryEmail"/>
+        </div>
+    </div>
+    <div class="col-sm-7 col-sm-offset-2">
+        <div class="form-group">
+            <label for="Wants">In General, What do you want?</label>
+            <input type="text" id="Wants" name="Wants" class="form-control" value="@ViewBag.Wants"/>
+        </div>
+    </div>
+        <div class="col-sm-3 col-sm-offset-4"><input type="submit" id="Submit" class="pull-right btn" value="Submit"/></div>    
     }
+    
+<script type="text/javascript">
+    $(function() {
+        $("#Wants").tagsInput({
+            'width': '100%',
+            'height': "35px",
+            'defaultText': "",
+            'placeholderColor': '#aaaaaa'
+        });
+
+        $("#Submit").click(function () {
+            $("#saved, #warnings").hide();
+            $(".required").each(function() {
+
+                var input = $(this);
+                var val = input.val();
+                if (val == "") {
+                    event.preventDefault();
+                    $("#warnings").show();
+                }
+            });
+        });
+        if ("@ViewBag.Errors" == "True") {
+            $("#warnings").show();
+        }
+        if ("@ViewBag.Saved" == "True") {
+            $("#saved").show();
+        }
+    });
+    
+</script>

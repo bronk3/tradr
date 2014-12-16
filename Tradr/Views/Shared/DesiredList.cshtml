@@ -1,0 +1,13 @@
+﻿@using System.Text
+@using Tradr.Models
+@model Offer
+@{
+    ViewBag.Title = "DesiredList";
+    Layout = null;
+    var name = (ViewBag.view == OfferListView.Inbox) ? "your" : String.Format("<a href='{0}'>{1}'s</a>", @Url.Action("Profile", "User", new {id=Model.Reciever.UserId}), Model.Reciever.FirstName);
+}
+
+    <div class="desired-images-container">
+        
+        <div class="desired-images" style="background-image: url('@Url.Content("~/Content/images/items/" + Model.DesiredItems.First().Images.First().ItemImage)')"><div class="title" style="text-align: left; margin-top: -25px;">@Model.DesiredItems.Count of @Html.Raw(name) Items:</div></div>
+    </div>

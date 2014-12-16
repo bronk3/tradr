@@ -1,0 +1,74 @@
+﻿@using System.Web.UI.WebControls
+@using Tradr.Models
+@model Offer
+@{
+    ViewBag.Title = "OfferList";
+    var rejectedBy = Model.SenderId == ViewBag.UserId ? "Them" : "You";
+    Layout = null;
+    var name = (ViewBag.view == OfferListView.Outbox) ? "your" : String.Format("<a href='{0}'>{1}'s</a>", @Url.Action("Profile", "User", new {id=Model.Sender.UserId}), Model.Sender.FirstName);
+    var seenBy = (ViewBag.view == OfferListView.Inbox) ? "your" : String.Format("<a href='{0}'>{1}</a>", @Url.Action("Profile", "User", new {id=Model.Reciever.UserId}), Model.Reciever.FirstName);
+    var status = Model.See == OfferSee.Seen ? "Seen by User" : "Not Seen by " + seenBy;
+}
+
+<div class="offer-container @if (ViewBag.view == OfferListView.History)
+                            {
+                                @Model.Status
+                            }
+                            else
+                            {
+                                @Model.See<text> </text>
+                                if (Model.Status == OfferStatus.Negotiation && Model.NextOffer !=0)
+                                {
+                                    @Model.Status
+                                }
+                            }" @if (Model.NextOffer != 0)
+                               {
+                                   <text> data-next='@Url.Action("ViewOffer", "Offer", new { id= Model.NextOffer})'</text>
+                               }>
+    <div class="offer-images-cover">
+        <div class="offer-images-container">
+            <div class="title" style="text-align: left;">@Model.ProposedItems.Count of @Html.Raw(name) Items:</div>
+            @foreach (var item in Model.ProposedItems)
+            {
+                <div class="offer-images" style="background-image: url('@Url.Content("~/Content/images/items/" + item.Images.First().ItemImage)')"></div>
+            }
+        </div>
+    </div>
+                    
+    <div class="buttons">
+        
+        @if (ViewBag.view == OfferListView.Inbox)
+        {
+            <a href="@Url.Action("NegotiateOffer", "Offer", new { id = Model.OfferId, negotiate = @OfferStatus.Negotiation })"><button class="btn btn-primary">Negotiate </button></a>
+            <a href="@Url.Action("AcceptOffer", "Offer", new { id = Model.OfferId })"><button class="btn btn-success">Accept </button></a>
+            if (Model.PreviousOffer != 0)
+            {
+                var previous = "true";
+                <text> <a href="@Url.Action("ViewOffer", "Offer", new { id = Model.PreviousOffer })"><button class="btn btn-info">View Previous</button></a></text>
+            }
+            
+            <a href="@Url.Action("NegotiateOffer", "Offer", new { id = Model.OfferId })"><button class="btn btn-info">View </button></a>
+            <a href="@Url.Action("RejectOffer", "Offer", new { id = Model.OfferId })"><button class="btn btn-danger">Reject </button></a>
+        }
+        else if (ViewBag.view == OfferListView.Outbox)
+        {
+            <div class="status">@Html.Raw(status)</div>
+            
+            if (Model.PreviousOffer != 0)
+            {
+                                    <text> <a href="@Url.Action("ViewOffer", "Offer", new { id = Model.PreviousOffer, previous = "true" })"><button class="btn btn-info">View Previous</button></a></text>
+            }
+            <a href="@Url.Action("ViewOffer", "Offer", new { id = Model.OfferId })"><button class="btn btn-info">View </button></a>
+            <a href="@Url.Action("RemoveOffer", "Offer", new { id = Model.OfferId })"><button class="btn btn-danger">Remove </button></a>
+        }
+        else if (ViewBag.view == OfferListView.History)
+        {
+            <div class="status">@Model.Status @if (@Model.Status != OfferStatus.Cancelled)
+                                              {
+                                                  <text>by @rejectedBy</text>
+                                              }</div>
+            <a href="@Url.Action("ViewOffer", "Offer", new { id = Model.OfferId })"><button class="btn btn-info">View </button></a>
+        }
+        <div class="offer-date">Date: @Model.DateTime</div>
+    </div>
+</div>

@@ -1,15 +1,24 @@
 ﻿@using System.Security.Cryptography
+@using Microsoft.Ajax.Utilities
 @using Tradr.Models
 @model Offer
 @{
     ViewBag.Title = "ViewOffer";
-    var status = Model.See == OfferSee.Seen ? "Seen by User" : "Not Seen by User";
     Item desiredItem = Model.DesiredItems.First();
+    var desired = (ViewBag.curUser == Model.RecieverId) ? "Your" : String.Format("<a href='{0}'>{1}'s</a>", @Url.Action("Profile", "User", new { id = Model.RecieverId }), Model.Reciever.FirstName);
+    var proposed = (ViewBag.curUser == Model.SenderId) ? "Your" : String.Format("<a href='{0}'>{1}'s</a>", @Url.Action("Profile", "User", new { id = Model.RecieverId }), Model.Reciever.FirstName);
+    if (ViewBag.previous == "true")
+    {
+        proposed = String.Format("<a href='{0}'>{1}'s</a>", @Url.Action("Profile", "User", new { id = Model.SenderId }), Model.Sender.FirstName);
+    }
+    var noPlurDesired = (ViewBag.curUser == Model.Reciever.UserId) ? "Your" : String.Format("<a href='{0}'>{1}</a>", @Url.Action("Profile", "User", new { id = Model.RecieverId }), Model.Reciever.FirstName);
+    var status = Model.See == OfferSee.Seen ? "Seen by " + noPlurDesired : "Not Seen by " + noPlurDesired;
 }
 <div id="view-offer">
-       <div class="title">Desired Items:</div>
+    <div class="title">@Html.Raw(desired) Items:</div>
     <div id="desired-item-container">
-        @foreach(var item in Model.DesiredItems){
+        @foreach(var item in Model.DesiredItems)
+        {
 
             <div class="desired-item">
                 <div class="desired-image" style="background-image: url('@Url.Content("~/Content/images/items/" + item.Images.First().ItemImage)')"></div>
@@ -22,7 +31,7 @@
             </div>
         }
     </div>
-       <div class="title">Proposed Items:</div>
+    <div class="title">@Html.Raw(proposed) Items:</div>
     <div id="proposed-container">
         @foreach (var item in Model.ProposedItems)
         {
@@ -37,18 +46,26 @@
         }
     </div>
     
+    
+    <div class="title">Message: </div>
     <div id="message">
         @foreach (var message in Model.Messages)
         {
-            <div>@message.MessageText</div>
+            <div>@message.MessageText</div> 
         }
     </div>
 
     <div class="buttons">
-        <div class="offer-date">Date: @Model.DateTimeInitial</div>
-        <div class="status">@Model.Status</div>
-        <div class="status">@status</div>
-        <a href="@Url.Action("RemoveOffer", "Offer", new { id = Model.OfferId })"><button class="btn btn-danger">Remove Offer</button></a>    
+        <div class="offer-date">Date: @Model.DateTime</div>
+        <div class="status">@Html.Raw(Model.Status)</div>
+        @if (Model.Status == OfferStatus.Initial || Model.Status == OfferStatus.Negotiation)
+        {
+            <div class="status">@Html.Raw(status)</div>
+        }
+        @if (Model.PreviousOffer == 0)
+        {
+            <a href="@Url.Action("RemoveOffer", "Offer", new { id = Model.OfferId })"><button class="btn btn-danger">Remove Offer</button></a>
+        }
         <a href="@Url.Action("Outbox", "Offer")"><button class="btn btn-info">Back</button></a>
     </div>
 </div>
@@ -61,9 +78,10 @@ $(function() {
             image.parent().css("display", "block");
             image.parent().parent().prepend(image.parent());
         } else {
-            image.next().css("display", "none");
-            image.parent().css("display", "inline");
-            image.parent().parent().append(image.parent());
+            image.next().slideUp("slow", function() {
+                image.parent().css("display", "inline");
+                image.parent().parent().append(image.parent());
+            });
         }
     });
 

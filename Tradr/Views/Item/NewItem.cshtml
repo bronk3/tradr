@@ -2,16 +2,18 @@
 @model ViewItem
 @{
     ViewBag.Title = "New Item";
+    ViewBag.Nav = "#nav1";
 }
 
 @using (Html.BeginForm("NewItem", "Item", FormMethod.Post, new { @id = "new-item"}))
 {
-    <span id="ErrorMessage">All fields must be filled in</span>
-    <div class="col-sm-6">   
+    <span id="warnings">All fields must be filled in</span>
+    <div class="col-sm-6">
+        <label for="Images">Image(s):</label>
         <div class="form-group dropzone" id="dropzoneHere">
         </div>
         <input type="hidden" name="Images" id="Images" value="@Model.Images"/>
- </div>
+    </div>
 
     <div class="col-sm-6">
         <div class="form-group">
@@ -73,11 +75,18 @@
     });
 
     $('#Submit').click(function () {
-        $("#new-item input, #new-item textarea").each(function () {
+        $("#new-item input:not('#Tags_tag'):not('#Wants_tag'), #new-item textarea").each(function () {
             var input = $(this);
             if (input.val() == "") {
-                // event.preventDefault();
-                // $("#ErrorMessage").show();
+                event.preventDefault();
+                $("#warnings").show();
+            } else if (input.attr("id") == "Value") {
+                var pFloat = parseFloat(input.val());
+                if (isNaN(pFloat)) {
+                    input.val("");
+                } else {
+                    input.val(pFloat);
+                }
             }
         });
     });

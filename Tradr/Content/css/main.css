@@ -6,6 +6,15 @@ h7 {
   text-transform: uppercase;
   margin: 30px 0 0 0; }
 
+h1 {
+  margin: 10px auto;
+  padding-bottom: 3px;
+  text-transform: uppercase;
+  border-color: black;
+  border-bottom-style: solid;
+  border-width: 2px;
+  display: inline-block; }
+
 .title-tag {
   font-weight: bold;
   font-size: 14px; }
@@ -46,6 +55,23 @@ h7 {
 .date-tag::before {
   content: "Posted: "; }
 
+#saved {
+  display: none;
+  font-size: 16px;
+  font-weight: bold;
+  color: #04799a; }
+
+#warnings {
+  display: none;
+  color: red;
+  font-size: 16px;
+  font-weight: bold; }
+
+.oldoffer {
+  color: red;
+  float: left;
+  font-size: 30px; }
+
 .title {
   font-size: 16px;
   font-weight: bold;
@@ -68,13 +94,19 @@ h7 {
   .navbar-default li a:hover, .navbar-nav li a:hover {
     color: #fff; }
 
+#tradr-main-nav {
+  background-color: #e2f8fe; }
+
 .nav-pills {
-  background-color: darkgrey; }
+  background-color: #39accd; }
   .nav-pills li a {
     border-radius: 0; }
 
 .nav-pills li a:hover {
-  background-color: darkslategrey; }
+  background-color: #04799a; }
+
+a.current-tab {
+  background-color: #04799a; }
 
 a.navbar-brand {
   height: 60px;
@@ -174,7 +206,14 @@ a.navbar-brand {
   background: #fff  no-repeat center center;
   background-size: 300px auto;
   background-size: contain;
-  vertical-align: top; }
+  vertical-align: top;
+  text-align: center; }
+  .sm-img .remove {
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 1px black solid;
+    margin: 35px auto 0 auto;
+    width: 70px;
+    padding: 3px; }
 
 .item-details {
   display: inline-block;
@@ -215,10 +254,15 @@ a.navbar-brand {
 
 .item-box {
   display: inline-block;
-  height: 260px;
+  height: auto;
   width: 200px;
   margin: 40px;
-  box-shadow: 2px 2px 4px #bbb; }
+  box-shadow: 2px 2px 4px #bbb;
+  text-align: center; }
+  .item-box a {
+    display: block; }
+  .item-box .btn {
+    margin: 2px auto 7px auto; }
   .item-box .item-image {
     background-color: #fff;
     width: 200px;
@@ -286,28 +330,61 @@ a.navbar-brand {
 #make-an-offer .buttons {
   float: right; }
 
-#all-offer-items, #all-reciever-items {
-  width: 65%;
+.item-box {
   display: inline-block;
-  vertical-align: top;
-  height: auto; }
-  #all-offer-items p:first-child, #all-reciever-items p:first-child {
-    margin-left: 20px; }
+  width: auto;
+  cursor: pointer;
+  position: relative; }
+  .item-box input[type="checkbox"] {
+    opacity: 0;
+    height: 0;
+    margin: 0; }
 
-.reciever-items, .proposer-items {
-  width: 32%;
-  text-align: center;
-  display: inline-block;
-  margin: 0 0 40px 0; }
-  .reciever-items .item-box, .proposer-items .item-box {
-    margin: 0 auto; }
-  .reciever-items input[type='checkbox'], .proposer-items input[type='checkbox'] {
-    margin: 100px 10px 0 0;
-    vertical-align: top; }
+/*		input[type="checkbox"]:checked ~ .item-title
+	{
+		background-color: red;
+	}
+	*/
+/*
+#all-offer-items, #all-reciever-items
+	{
+		width: 65%;
+		display: inline-block;
+		vertical-align: top;
+		height: auto;
+		p:first-child
+		{
+			margin-left: 20px;
+		}
+	}
+	.reciever-items, .proposer-items
+	{
+		width: 32%;
+		text-align: center;
+		display: inline-block;
+		margin: 0 0 40px 0;
 
-#all-reciever-items {
-  display: none; }
+		.item-box
+		{
+			margin: 0 auto;
+		} 
 
+		input[type='checkbox']
+		{
+			margin: 100px 10px 0 0;
+			vertical-align: top;
+			opacity: 0;
+		}
+		input:checked item-box
+		{
+			border: 2px 2px 6px red solid;
+		} 
+	}
+	#all-reciever-items
+{
+	display: none;
+}
+*/
 #message-wrapper {
   width: 80%;
   margin: 0 auto;
@@ -325,17 +402,19 @@ a.navbar-brand {
   width: auto;
   margin: 20px auto; }
 .offers .desired-image-filler {
-  width: 350px;
+  width: 34%;
   height: 320px;
   vertical-align: bottom;
   display: inline-block; }
 .offers .title {
   margin: 10px 0 0 0; }
 .offers .desired-images-container {
-  text-align: center;
+  text-align: right;
   display: inline-block;
   vertical-align: bottom;
-  margin-right: 50px; }
+  padding-right: 50px;
+  min-width: 300px;
+  width: 34%; }
 .offers .desired-images {
   background-color: #fff;
   background-position: center center;
@@ -346,15 +425,21 @@ a.navbar-brand {
   display: inline-block;
   border: 1px #ccc solid; }
 .offers .offer-container {
-  max-width: 69%;
-  width: auto;
+  position: relative;
+  width: 65%;
+  min-width: 300px;
   border: 3px #ccc solid;
   padding: 5px 20px;
   display: inline-block;
   vertical-align: bottom; }
+.offers .offer-images-cover {
+  width: 100%;
+  overflow: hidden;
+  height: 242px; }
 .offers .offer-images-container {
-  text-align: center;
-  display: inline-block; }
+  display: inline-block;
+  width: 1200px;
+  height: 242px; }
 .offers .offer-images {
   background-color: #fff;
   background-position: center center;
@@ -366,6 +451,19 @@ a.navbar-brand {
   display: inline-block;
   border: 1px #aaa solid;
   vertical-align: top; }
+.offers .cover-negotiated {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding-top: 100px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.7); }
+.offers .status {
+  font-weight: bold;
+  font-size: 16px;
+  text-transform: uppercase; }
 .offers .NotSeen {
   border-color: #5bc0de; }
 .offers .Rejected {
@@ -376,6 +474,10 @@ a.navbar-brand {
   border-color: #5cb85c; }
   .offers .Accepted .status {
     color: #5cb85c; }
+.offers .Cancelled {
+  border-color: orange; }
+  .offers .Cancelled .status {
+    color: orange; }
 
 .buttons {
   text-align: right;
@@ -389,71 +491,99 @@ a.navbar-brand {
 #view-offer {
   padding: 0 30px;
   text-align: center; }
-  #view-offer .desired-item {
-    text-align: center;
-    margin: 10px 20px;
-    display: inline-block; }
-    #view-offer .desired-item .desired-image {
-      width: 300px;
-      height: 300px;
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: center center;
-      border: 1px #bbb solid;
-      margin: 0 auto;
-      vertical-align: top; }
-    #view-offer .desired-item .desired-title {
-      font-size: 20px;
+
+.desired-item {
+  text-align: center;
+  margin: 10px 20px;
+  display: inline-block; }
+  .desired-item .desired-image {
+    width: 300px;
+    height: 300px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center center;
+    border: 1px #bbb solid;
+    margin: 0 auto;
+    vertical-align: top; }
+  .desired-item .desired-title {
+    font-size: 20px;
+    font-weight: bold; }
+  .desired-item .desired-tags {
+    vertical-align: top; }
+  .desired-item .desired-value {
+    vertical-align: top; }
+  .desired-item .desired-views {
+    vertical-align: top; }
+  .desired-item .desired-offers {
+    vertical-align: top; }
+
+.individual-items {
+  display: inline-block; }
+  .individual-items input {
+    vertical-align: top;
+    margin-top: 150px; }
+
+.proposed-items {
+  margin: 50px auto;
+  width: 80%;
+  display: inline; }
+  .proposed-items .proposed-image {
+    width: 300px;
+    height: 300px;
+    margin: 0 10px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center center;
+    border: 1px #bbb solid;
+    display: inline-block;
+    vertical-align: top;
+    cursor: pointer; }
+  .proposed-items .info {
+    display: inline-block;
+    vertical-align: top;
+    padding: 10px 20px;
+    display: none; }
+    .proposed-items .info span {
+      font-size: 16px;
       font-weight: bold; }
-    #view-offer .desired-item .desired-tags {
-      vertical-align: top; }
-    #view-offer .desired-item .desired-value {
-      vertical-align: top; }
-    #view-offer .desired-item .desired-views {
-      vertical-align: top; }
-    #view-offer .desired-item .desired-offers {
-      vertical-align: top; }
-  #view-offer .individual-items {
-    display: inline-block; }
-    #view-offer .individual-items input {
-      vertical-align: top;
-      margin-top: 150px; }
-  #view-offer .proposed-items {
-    margin: 50px auto;
-    width: 80%;
-    display: inline; }
-    #view-offer .proposed-items .proposed-image {
-      width: 300px;
-      height: 300px;
-      margin: 0 10px;
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: center center;
-      border: 1px #bbb solid;
-      display: inline-block;
-      vertical-align: top;
-      cursor: pointer; }
-    #view-offer .proposed-items .info {
-      display: inline-block;
-      vertical-align: top;
-      padding: 10px 20px;
-      display: none; }
-      #view-offer .proposed-items .info span {
-        font-size: 16px;
-        font-weight: bold; }
-    #view-offer .proposed-items .proposed-title {
-      vertical-align: middle; }
-    #view-offer .proposed-items .proposed-description {
-      vertical-align: middle; }
-    #view-offer .proposed-items .proposed-value {
-      vertical-align: middle; }
-  #view-offer .buttons {
-    width: 80%;
-    margin-left: auto;
-    margin-right: auto;
-    text-align: center; }
-    #view-offer .buttons div {
-      float: none; }
+  .proposed-items .proposed-title {
+    vertical-align: middle; }
+  .proposed-items .proposed-description {
+    vertical-align: middle; }
+  .proposed-items .proposed-value {
+    vertical-align: middle; }
+
+.view-offers .buttons {
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center; }
+  .view-offers .buttons div {
+    float: none; }
+
+.sent-message-wrapper {
+  margin: 30px 15px;
+  text-align: center; }
+  .sent-message-wrapper .sent-message-container {
+    position: relative;
+    width: 70%;
+    border: 1px #04799a solid;
+    padding: 5px 20px;
+    display: inline-block;
+    vertical-align: bottom;
+    text-align: left; }
+  .sent-message-wrapper .sent-message-name {
+    margin: 20px 0;
+    font-weight: bold;
+    font-height: 16px; }
+  .sent-message-wrapper .sent-message {
+    margin: 15px 0;
+    font-size: 14px; }
+
+#profile ul {
+  margin: 0;
+  padding: 0 0 0 2px;
+  list-style: none; }
 
 @media screen and (max-width: 1270px) {
   #make-an-offer .individual-items {
@@ -463,7 +593,13 @@ a.navbar-brand {
     display: block;
     width: auto;
     margin-left: auto;
-    margin-right: auto; } }
+    margin-right: auto; }
+
+  .offers .offer-images-cover, .offers .offer-images-container {
+    height: auto;
+    width: auto; }
+  .offers .desired-image-filler {
+    display: none; } }
 @media screen and (max-width: 545px) {
   #make-an-offer .individual-items {
     display: block;

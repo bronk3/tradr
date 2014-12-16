@@ -23,7 +23,8 @@ namespace Tradr.Controllers
 
         public ActionResult Login()
         {
-
+            this.Session["UserId"] = null;
+            this.Session["UserName"] = null;
             return View(new ViewLogin());
         }
 
@@ -39,6 +40,7 @@ namespace Tradr.Controllers
                 this.Session["UserName"] = user.FirstName;
                 return Redirect(@Url.Action("Index", "Home"));
             }
+            ViewBag.Errors = "True";
             return View(model);
         }
 
@@ -56,8 +58,10 @@ namespace Tradr.Controllers
                 db.Users.Add(model);
                 db.SaveChanges();
                 this.Session["UserId"] = model.UserId;
+                this.Session["UserName"] = model.FirstName;
                 return Redirect(@Url.Action("UserSettings", "User"));
             }
+            ViewBag.Errors = "True";
             return View(model);
         }
 
@@ -65,7 +69,7 @@ namespace Tradr.Controllers
         //https://crackstation.net/hashing-security.htm#aspsourcecode
 
         //Creates Hash with entered password to check against record hash
-        public static bool ValidatePassword(string password, string correctHash)
+        public bool ValidatePassword(string password, string correctHash)
         {
             char[] delimiter = {':'};
             string[] split = correctHash.Split(delimiter);
@@ -78,7 +82,7 @@ namespace Tradr.Controllers
         }
 
         //Prevents Hackers from being able to determine what Char is incorrect by having the run time all the same
-        private static bool SlowEquals(byte[] hash, byte[] testHash)
+        private bool SlowEquals(byte[] hash, byte[] testHash)
         {
             uint diff = (uint) hash.Length ^ (uint) testHash.Length;
             for (int i = 0; i < hash.Length && i < testHash.Length; i++)
@@ -87,7 +91,7 @@ namespace Tradr.Controllers
         }
 
         //Returns password Hash by using salt, password, and iterations
-        public static string CreateHash(string password)
+        public string CreateHash(string password)
         {
             RNGCryptoServiceProvider csprng = new RNGCryptoServiceProvider();
             byte[] salt = new byte[SALT_BYTE_SIZE];

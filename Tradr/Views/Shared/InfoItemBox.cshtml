@@ -1,0 +1,20 @@
+﻿@using Tradr.Models
+@model Item
+@{
+    ViewBag.Title = "MyItems";
+    Layout = null;
+}
+
+    <div class="col-sm-4 text-center">
+        <div class="myitem-container">
+            <a href="@Url.Action("ItemDetails", "Item", new{id = Model.ItemId})">
+                <div class="img" style="background-image: url('@Url.Content("~/Content/images/items/" + @Model.Images.First().ItemImage)')"></div>
+                <div class="title-tag">@Model.Title</div> </a>
+                <div class="value-tag">@Model.Value</div>
+                <div class="views-tag">@Model.Views</div>
+                <div class="offers-tag">@Model.DesiredItem.Count</div>
+                <div class="date-tag">@Model.DateTimeAdded.ToString("dd MMM yyyy, hh:mm tt")</div>
+                <a href="@Url.Action("EditItem", "item", new { id = Model.ItemId})"><button class="btn btn-info">Edit</button></a>
+                <a href="@Url.Action("removeItem", "item", new { id = Model.ItemId })"><button class="btn btn-danger">Remove</button></a>
+        </div>
+    </div>
